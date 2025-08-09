@@ -231,10 +231,10 @@ const App = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ p: 2, mb: 4, backgroundColor: 'primary.light', borderRadius: 4 }}>
+            {selectedVenue && selectedVenue._id && (<Box sx={{ p: 2, mb: 4, backgroundColor: 'primary.light', borderRadius: 4 }}>
               <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth style={{'minMidth': '145px'}}>
+                  <FormControl fullWidth style={{minWidth: '145px'}}>
                     <InputLabel id="venue-select-label">Select Venue</InputLabel>
                     <Select
                       labelId="venue-select-label"
@@ -265,7 +265,7 @@ const App = () => {
                   />
                 </Grid>
               </Grid>
-            </Box>
+            </Box>)}
 
             <Box mb={4}>
               {loading && (
