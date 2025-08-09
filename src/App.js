@@ -119,7 +119,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedVenue) {
+    if (selectedVenue && selectedVenue._id) {
       fetchCourtsAndBookings();
     }
   }, [selectedVenue, selectedDate]);
@@ -196,7 +196,7 @@ const App = () => {
 
   const timeSlots = [];
   for (let i = 6; i <= 22; i++) {
-    timeSlots.push(DateTime.fromObject({ hour: i }).toFormat('HH:mm'));
+    timeSlots.push(DateTime.fromObject({ hour: i }).toFormat('hh:mm a'));
   }
 
   return (
@@ -234,7 +234,7 @@ const App = () => {
             <Box sx={{ p: 2, mb: 4, backgroundColor: 'primary.light', borderRadius: 4 }}>
               <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth style={{'min-width': '145px'}}>
+                  <FormControl fullWidth style={{'minMidth': '145px'}}>
                     <InputLabel id="venue-select-label">Select Venue</InputLabel>
                     <Select
                       labelId="venue-select-label"
