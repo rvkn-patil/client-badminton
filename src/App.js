@@ -52,44 +52,6 @@ const theme = createTheme({
   },
 });
 
-// // A custom styled button for the time slots
-// const TimeSlotButton = styled(Button)(({ theme, isbooked, isselected }) => ({
-//   flexGrow: 1,
-//   margin: theme.spacing(0.5),
-//   padding: theme.spacing(1.5),
-//   borderRadius: theme.shape.borderRadius * 2,
-//   textTransform: 'none',
-//   fontWeight: theme.typography.fontWeightBold,
-//   transition: 'all 0.2s ease-in-out',
-//   ...(isbooked && {
-//     backgroundColor: theme.palette.error.light,
-//     color: theme.palette.error.contrastText,
-//     cursor: 'not-allowed',
-//     '&:hover': {
-//       backgroundColor: theme.palette.error.light,
-//     },
-//   }),
-//   ...(!isbooked && !isselected && {
-//     backgroundColor: theme.palette.success.light,
-//     color: theme.palette.success.contrastText,
-//     '&:hover': {
-//       backgroundColor: theme.palette.success.main,
-//       color: theme.palette.success.contrastText,
-//       transform: 'scale(1.05)',
-//     },
-//   }),
-//   ...(isselected && {
-//     backgroundColor: theme.palette.success.main,
-//     color: theme.palette.success.contrastText,
-//     transform: 'scale(1.05)',
-//     boxShadow: theme.shadows[4],
-//     '&:hover': {
-//       backgroundColor: theme.palette.success.main,
-//       color: theme.palette.success.contrastText,
-//     },
-//   }),
-// }));
-
 const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
   padding: theme.spacing(2),
@@ -98,19 +60,6 @@ const Item = styled(Paper)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[3],
 }));
-
-// Slider marks for 1-hour intervals from 6 AM to 10 PM
-// const marks = [
-//   { value: 6, label: '6 AM' },
-//   { value: 8, label: '8 AM' },
-//   { value: 10, label: '10 AM' },
-//   { value: 12, label: '12 PM' },
-//   { value: 14, label: '2 PM' },
-//   { value: 16, label: '4 PM' },
-//   { value: 18, label: '6 PM' },
-//   { value: 20, label: '8 PM' },
-//   { value: 22, label: '10 PM' },
-// ];
 
 const marks = [];
 for (let i = 6; i <= 22; i++) {
@@ -218,24 +167,6 @@ const App = () => {
       setLoading(false);
     }
   };
-
-  // const isSlotBooked = (courtId, startTime) => {
-  //   const bookingStart = DateTime.fromISO(`${selectedDate}T${startTime}:00.000`);
-  //   const bookingEnd = bookingStart.plus({ hours: 1 });
-
-  //   return bookings.some(booking => {
-  //     const existingStartTime = DateTime.fromISO(booking.startTime);
-  //     const existingEndTime = DateTime.fromISO(booking.endTime);
-      
-  //     return booking.courtId === courtId &&
-  //       bookingStart < existingEndTime && bookingEnd > existingStartTime;
-  //   });
-  // };
-
-  // const timeSlots = [];
-  // for (let i = 6; i <= 22; i++) {
-  //   timeSlots.push(DateTime.fromObject({ hour: i }).toFormat('hh:mm a'));
-  // }
 
   const isSlotBooked = (courtId, hour) => {
     return bookings.some(booking => {
@@ -362,48 +293,6 @@ const App = () => {
                   <CircularProgress color="primary" />
                 </Box>
               )}
-
-              {/* {!loading && courts.length > 0 && (
-                <Grid container spacing={4}>
-                  {courts.map(court => (
-                    <Grid item xs={12} md={6} lg={4} key={court._id}>
-                      <Paper elevation={4} sx={{ p: 3, borderRadius: 4 }}>
-                        <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.dark' }}>
-                          {court.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {court.description}
-                        </Typography>
-                        
-                        <Grid container spacing={1}>
-                          {timeSlots.map(time => {
-                            const isBooked = isSlotBooked(court._id, time);
-                            const isSelected = selectedCourt && selectedCourt._id === court._id && selectedTime === time;
-                            return (
-                              <Grid item xs={4} key={time}>
-                                <TimeSlotButton
-                                  variant="contained"
-                                  isbooked={isBooked.toString()}
-                                  isselected={isSelected.toString()}
-                                  onClick={() => {
-                                    if (!isBooked) {
-                                      setSelectedCourt(court);
-                                      setSelectedTime(time);
-                                    }
-                                  }}
-                                  disabled={isBooked}
-                                >
-                                  {time}
-                                </TimeSlotButton>
-                              </Grid>
-                            );
-                          })}
-                        </Grid>
-                      </Paper>
-                    </Grid>
-                  ))}
-                </Grid>
-              )} */}
 
               {!loading && courts.length > 0 && (
                 <Box sx={{ mt: 4 }}>
