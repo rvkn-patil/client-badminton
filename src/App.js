@@ -17,6 +17,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Slider,
+  Chip,
 } from '@mui/material';
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 
@@ -50,43 +52,76 @@ const theme = createTheme({
   },
 });
 
-// A custom styled button for the time slots
-const TimeSlotButton = styled(Button)(({ theme, isbooked, isselected }) => ({
-  flexGrow: 1,
-  margin: theme.spacing(0.5),
-  padding: theme.spacing(1.5),
-  borderRadius: theme.shape.borderRadius * 2,
-  textTransform: 'none',
-  fontWeight: theme.typography.fontWeightBold,
-  transition: 'all 0.2s ease-in-out',
-  ...(isbooked && {
-    backgroundColor: theme.palette.error.light,
-    color: theme.palette.error.contrastText,
-    cursor: 'not-allowed',
-    '&:hover': {
-      backgroundColor: theme.palette.error.light,
-    },
-  }),
-  ...(!isbooked && !isselected && {
-    backgroundColor: theme.palette.success.light,
-    color: theme.palette.success.contrastText,
-    '&:hover': {
-      backgroundColor: theme.palette.success.main,
-      color: theme.palette.success.contrastText,
-      transform: 'scale(1.05)',
-    },
-  }),
-  ...(isselected && {
-    backgroundColor: theme.palette.success.main,
-    color: theme.palette.success.contrastText,
-    transform: 'scale(1.05)',
-    boxShadow: theme.shadows[4],
-    '&:hover': {
-      backgroundColor: theme.palette.success.main,
-      color: theme.palette.success.contrastText,
-    },
-  }),
+// // A custom styled button for the time slots
+// const TimeSlotButton = styled(Button)(({ theme, isbooked, isselected }) => ({
+//   flexGrow: 1,
+//   margin: theme.spacing(0.5),
+//   padding: theme.spacing(1.5),
+//   borderRadius: theme.shape.borderRadius * 2,
+//   textTransform: 'none',
+//   fontWeight: theme.typography.fontWeightBold,
+//   transition: 'all 0.2s ease-in-out',
+//   ...(isbooked && {
+//     backgroundColor: theme.palette.error.light,
+//     color: theme.palette.error.contrastText,
+//     cursor: 'not-allowed',
+//     '&:hover': {
+//       backgroundColor: theme.palette.error.light,
+//     },
+//   }),
+//   ...(!isbooked && !isselected && {
+//     backgroundColor: theme.palette.success.light,
+//     color: theme.palette.success.contrastText,
+//     '&:hover': {
+//       backgroundColor: theme.palette.success.main,
+//       color: theme.palette.success.contrastText,
+//       transform: 'scale(1.05)',
+//     },
+//   }),
+//   ...(isselected && {
+//     backgroundColor: theme.palette.success.main,
+//     color: theme.palette.success.contrastText,
+//     transform: 'scale(1.05)',
+//     boxShadow: theme.shadows[4],
+//     '&:hover': {
+//       backgroundColor: theme.palette.success.main,
+//       color: theme.palette.success.contrastText,
+//     },
+//   }),
+// }));
+
+const Item = styled(Paper)(({ theme }) => ({
+  ...theme.typography.body2,
+  padding: theme.spacing(2),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[3],
 }));
+
+// Slider marks for 1-hour intervals from 6 AM to 10 PM
+// const marks = [
+//   { value: 6, label: '6 AM' },
+//   { value: 8, label: '8 AM' },
+//   { value: 10, label: '10 AM' },
+//   { value: 12, label: '12 PM' },
+//   { value: 14, label: '2 PM' },
+//   { value: 16, label: '4 PM' },
+//   { value: 18, label: '6 PM' },
+//   { value: 20, label: '8 PM' },
+//   { value: 22, label: '10 PM' },
+// ];
+
+const marks = [];
+for (let i = 6; i <= 22; i++) {
+  marks.push({value: i, label: DateTime.fromObject({ hour: i }).toFormat('hh a')}); // { value: 22, label: '10 PM' }
+}
+
+function valueText(value) {
+  if(value) {
+    return DateTime.fromObject({ hour: parseInt(value) }).toFormat('hh a');
+  }
+}
 
 const App = () => {
   const [venues, setVenues] = useState([]);
@@ -95,7 +130,8 @@ const App = () => {
   const [selectedVenue, setSelectedVenue] = useState({});
   const [selectedCourt, setSelectedCourt] = useState({});
   const [selectedDate, setSelectedDate] = useState(DateTime.local().toISODate());
-  const [selectedTime, setSelectedTime] = useState('');
+  // const [selectedTime, setSelectedTime] = useState('');
+  const [selectedTime, setSelectedTime] = useState(6);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [isMessageOpen, setIsMessageOpen] = useState(false);
@@ -153,6 +189,7 @@ const App = () => {
 
     setLoading(true);
     try {
+      const formattedTime = DateTime.fromObject({ hour: selectedTime }).toFormat('HH:mm');
       const response = await fetch(`${API_BASE_URL}/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -160,7 +197,8 @@ const App = () => {
           venueId: selectedVenue._id,
           courtId: selectedCourt._id,
           date: selectedDate,
-          startTime: selectedTime,
+          // startTime: selectedTime,
+          startTime: formattedTime,
           userId: 'mock_user_id',
         }),
       });
@@ -181,23 +219,46 @@ const App = () => {
     }
   };
 
-  const isSlotBooked = (courtId, startTime) => {
-    const bookingStart = DateTime.fromISO(`${selectedDate}T${startTime}:00.000`);
-    const bookingEnd = bookingStart.plus({ hours: 1 });
+  // const isSlotBooked = (courtId, startTime) => {
+  //   const bookingStart = DateTime.fromISO(`${selectedDate}T${startTime}:00.000`);
+  //   const bookingEnd = bookingStart.plus({ hours: 1 });
 
-    return bookings.some(booking => {
-      const existingStartTime = DateTime.fromISO(booking.startTime);
-      const existingEndTime = DateTime.fromISO(booking.endTime);
+  //   return bookings.some(booking => {
+  //     const existingStartTime = DateTime.fromISO(booking.startTime);
+  //     const existingEndTime = DateTime.fromISO(booking.endTime);
       
-      return booking.courtId === courtId &&
-        bookingStart < existingEndTime && bookingEnd > existingStartTime;
+  //     return booking.courtId === courtId &&
+  //       bookingStart < existingEndTime && bookingEnd > existingStartTime;
+  //   });
+  // };
+
+  // const timeSlots = [];
+  // for (let i = 6; i <= 22; i++) {
+  //   timeSlots.push(DateTime.fromObject({ hour: i }).toFormat('hh:mm a'));
+  // }
+
+  const isSlotBooked = (courtId, hour) => {
+    return bookings.some(booking => {
+      const bookingStartHour = DateTime.fromISO(booking.startTime).hour;
+      return booking.courtId === courtId && bookingStartHour === hour;
     });
   };
 
-  const timeSlots = [];
-  for (let i = 6; i <= 22; i++) {
-    timeSlots.push(DateTime.fromObject({ hour: i }).toFormat('hh:mm a'));
-  }
+  const handleSliderChange = (event, newValue) => {
+    setSelectedTime(newValue);
+    setSelectedCourt({}); // Clear selected court when time changes
+  };
+
+  const handleCourtClick = (courtId) => {
+    setCourts(prevCourts =>
+      prevCourts.map(court =>
+        court._id === courtId
+          ? { ...court, isSelected: !court.isSelected }
+          : { ...court, isSelected: false } // Deselect others
+      )
+    );
+    setSelectedCourt(courts.find(c => c._id === courtId));
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -268,13 +329,41 @@ const App = () => {
             </Box>)}
 
             <Box mb={4}>
+              <Item>
+                <Typography variant="h6" gutterBottom>
+                  Select Time:
+                </Typography>
+                <Typography variant="subtitle1" color="primary" gutterBottom>
+                  **{valueText(selectedTime)}**
+                </Typography>
+                <Slider
+                  aria-label="Time"
+                  defaultValue={12}
+                  value={selectedTime}
+                  onChange={handleSliderChange}
+                  getAriaValueText={valueText}
+                  step={1}
+                  marks={marks}
+                  min={6}
+                  max={22}
+                  sx={{
+                    '& .MuiSlider-track': {
+                      height: '0px',
+                      width: '100%'
+                    },
+                  }}
+                />
+              </Item>
+            </Box>
+
+            <Box mb={4}>
               {loading && (
                 <Box display="flex" justifyContent="center" py={5}>
                   <CircularProgress color="primary" />
                 </Box>
               )}
 
-              {!loading && courts.length > 0 && (
+              {/* {!loading && courts.length > 0 && (
                 <Grid container spacing={4}>
                   {courts.map(court => (
                     <Grid item xs={12} md={6} lg={4} key={court._id}>
@@ -314,6 +403,34 @@ const App = () => {
                     </Grid>
                   ))}
                 </Grid>
+              )} */}
+
+              {!loading && courts.length > 0 && (
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="h6" gutterBottom align="center">
+                    Available Courts for {valueText(selectedTime)}
+                  </Typography>
+                  <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
+                    {courts.map(court => (
+                      <Grid item key={court._id}>
+                        <Chip
+                          label={court.name}
+                          color={!isSlotBooked(court._id, selectedTime) ? (court.isSelected ? "success" : "default") : "error"}
+                          disabled={isSlotBooked(court._id, selectedTime)}
+                          onClick={() => handleCourtClick(court._id)}
+                          variant={isSlotBooked(court._id, selectedTime) ? "filled" : "outlined"}
+                          sx={{
+                            '&.MuiChip-colorSuccess': {
+                              borderColor: 'success.main',
+                              backgroundColor: 'success.light',
+                              color: 'success.dark',
+                            },
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
               )}
             </Box>
 
@@ -334,7 +451,8 @@ const App = () => {
                       <TextField fullWidth label="Date" value={selectedDate} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label="Time" value={selectedTime} InputProps={{ readOnly: true }} />
+                      {/* <TextField fullWidth label="Time" value={selectedTime} InputProps={{ readOnly: true }} /> */}
+                      <TextField fullWidth label="Time" value={valueText(selectedTime)} InputProps={{ readOnly: true }} />
                     </Grid>
                     <Grid item xs={12}>
                       <TextField fullWidth label="Duration" value="1 Hour" InputProps={{ readOnly: true }} />
