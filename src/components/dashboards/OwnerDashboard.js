@@ -76,9 +76,6 @@ const OwnerDashboard = () => {
         if (!selectedVenue) return;
         setLoading(true);
         try {
-            const courtsResponse = await fetch(`${API_BASE_URL}/venues/${selectedVenue._id}/courts`);
-            const courtsData = await courtsResponse.json();
-
             const bookingsResponse = await fetch(`${API_BASE_URL}/bookings?venueId=${selectedVenue._id}&date=${selectedDate}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -108,12 +105,12 @@ const OwnerDashboard = () => {
     }, [selectedVenue, selectedDate, token]);
 
     useEffect(() => {
-        if (allBookings.length > 0) {
-            const now = DateTime.utc();
-            const active = [];
-            const upcoming = [];
-            const expired = [];
+        const now = DateTime.utc();
+        const active = [];
+        const upcoming = [];
+        const expired = [];
 
+        if (allBookings.length > 0) {
             allBookings.forEach(booking => {
                 const bookingStart = DateTime.fromISO(booking.startTime);
                 const bookingEnd = DateTime.fromISO(booking.endTime);
@@ -126,10 +123,10 @@ const OwnerDashboard = () => {
                     expired.push(booking);
                 }
             });
-            setActiveBookings(active);
-            setUpcomingBookings(upcoming);
-            setExpiredBookings(expired);
         }
+        setActiveBookings(active);
+        setUpcomingBookings(upcoming);
+        setExpiredBookings(expired);
     }, [allBookings]);
 
     const handleTabChange = (event, newValue) => {
