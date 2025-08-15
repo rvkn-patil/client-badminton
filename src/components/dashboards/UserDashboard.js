@@ -48,7 +48,9 @@ const UserDashboard = () => {
     useEffect(() => {
         const fetchVenues = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/venues`);
+                const response = await fetch(`${API_BASE_URL}/venues`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const data = await response.json();
                 setVenues(data);
                 if (data.length > 0) {
@@ -72,7 +74,9 @@ const UserDashboard = () => {
     const fetchCourtsAndBookings = async () => {
         setLoading(true);
         try {
-            const courtsResponse = await fetch(`${API_BASE_URL}/venues/${selectedVenue._id}/courts`);
+            const courtsResponse = await fetch(`${API_BASE_URL}/venues/${selectedVenue._id}/courts`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             const courtsData = await courtsResponse.json();
             setCourts(courtsData);
 

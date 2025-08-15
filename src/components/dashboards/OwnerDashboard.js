@@ -58,7 +58,9 @@ const OwnerDashboard = () => {
     const fetchOwnerVenues = async () => {
         if (!user || !user.id) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/venues`);
+            const response = await fetch(`${API_BASE_URL}/venues`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             const allVenues = await response.json();
             const ownerVenues = allVenues.filter(venue => role === 'admin' ? venue.adminIds.includes(user.id) : venue.ownerIds.includes(user.id));
             setVenues(ownerVenues);
