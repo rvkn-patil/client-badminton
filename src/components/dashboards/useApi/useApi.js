@@ -2,11 +2,6 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { API_BASE_URL } from '../api/api';
 
-// Custom hook to handle API calls with authentication
-// This hook abstracts the API call logic, making it reusable across components
-// It supports GET, POST, PUT, and DELETE methods and handles authentication tokens
-// It also manages loading states and errors for better user experience
-
 const useApi = (initialEndpoint, initialOptions = {}) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);

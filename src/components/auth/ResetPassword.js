@@ -11,22 +11,23 @@ import {
     Link,
 } from '@mui/material';
 import MessageDialog from '../common/MessageDialog';
-import { API_BASE_URL } from '../../api/api';
+import useApi from '../../hooks/useApi';
 
 const ResetPassword = ({ setRoute }) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [isMessageOpen, setIsMessageOpen] = useState(false);
     const [token, setToken] = useState(null);
+
+    const { data, loading, error, post } = useApi('/auth/reset-password', { lazy: true });
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setToken(params.get('token'));
     }, []);
 
-    const handleResetPassword = async (e) => {
+    const handleResetPassword = (e) => {
         e.preventDefault();
         if (!token) {
             setMessage('Invalid or missing password reset token.');
@@ -39,28 +40,21 @@ const ResetPassword = ({ setRoute }) => {
             return;
         }
 
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, newPassword: password }),
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setMessage('Password reset successful! You can now log in with your new password.');
-                setRoute('login');
-            } else {
-                setMessage(data.message || 'Failed to reset password. The token may be invalid or expired.');
-            }
-        } catch (error) {
-            console.error('Reset password error:', error);
-            setMessage('An error occurred. Please try again.');
-        } finally {
-            setLoading(false);
+        post({ token, newPassword: password });
+    };
+
+    useEffect(() => {
+        if (data) {
+            setMessage('Password reset successful! You can now log in with your new password.');
+            setRoute('login');
+        }
+        if (error) {
+            setMessage(error.message || 'Failed to reset password. The token may be invalid or expired.');
+        }
+        if (data || error) {
             setIsMessageOpen(true);
         }
-    };
+    }, [data, error, setRoute]);
 
     return (
         <Container component="main" maxWidth="xs">
