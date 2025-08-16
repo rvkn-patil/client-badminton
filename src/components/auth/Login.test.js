@@ -14,7 +14,7 @@ import { loginUser } from '../../api/apiService'; // Importing the login functio
 // Mock the AuthContext and the API service
 const mockAuthContext = {
     login: jest.fn(),
-    token: null,
+    token: null
 };
 jest.mock('../../api/apiService');
 
@@ -67,7 +67,7 @@ describe('Login Component', () => {
 
     test('should call login function on successful login', async () => {
         // Mock the API service to return a successful login response
-        loginUser.mockResolvedValueOnce({ token: 'mock-token', user: { id: '123' } });
+        loginUser.mockResolvedValueOnce({user: { id: '123', role: 'user' }, token: 'mock-token', role: 'user'});
 
         render(
             <AuthContext.Provider value={mockAuthContext}>
@@ -82,7 +82,7 @@ describe('Login Component', () => {
 
         // Wait for the login function from AuthContext to be called
         await waitFor(() => {
-            expect(mockAuthContext.login).toHaveBeenCalledWith('mock-token', expect.any(Object));
+            expect(mockAuthContext.login).toHaveBeenCalledWith(expect.any(Object), 'mock-token', 'user');
         });
     });
 });
