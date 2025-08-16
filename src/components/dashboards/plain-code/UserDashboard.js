@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { DateTime } from 'luxon';
 import {
     Container,
@@ -20,7 +20,6 @@ import { AuthContext } from '../../context/AuthContext';
 import MessageDialog from '../common/MessageDialog';
 import { API_BASE_URL } from '../../api/api';
 import { Item } from '../../theme/theme';
-import { getVenues } from '../../api/apiService'; // Importing the API request function
 
 const marks = [];
 for (let i = 6; i <= 22; i++) {
@@ -46,47 +45,25 @@ const UserDashboard = () => {
     const [loading, setLoading] = useState(false);
     const [isMessageOpen, setIsMessageOpen] = useState(false);
 
-    // useEffect(() => {
-    //     const fetchVenues = async () => {
-    //         try {
-    //             // const response = await fetch(`${API_BASE_URL}/venues`, {
-    //             //     headers: { 'Authorization': `Bearer ${token}` }
-    //             // });
-    //             // const data = await response.json();
-    //             const data = await getVenues();
-    //             setVenues(data);
-    //             if (data.length > 0) {
-    //                 setSelectedVenue(data[0]);
-    //             }
-    //         } catch (error) {
-    //             console.error('Failed to fetch venues:', error);
-    //             setMessage('Failed to load venues. Please check the server.');
-    //             setIsMessageOpen(true);
-    //         }
-    //     };
-    //     fetchVenues();
-    // }, []);
-
-    const fetchUserVenues = useCallback(async () => {
-        setLoading(true);
-        try {
-            // Using the centralized getVenues function
-            const allVenues = await getVenues(token);
-            setVenues(allVenues);
-            if (allVenues.length > 0) {
-                setSelectedVenue(allVenues[0]);
-            }
-        } catch (error) {
-            setMessage(error.message || 'Failed to load venues.');
-            setIsMessageOpen(true);
-        } finally {
-            setLoading(false);
-        }
-    }, [token]);
-
     useEffect(() => {
-        fetchUserVenues();
-    }, [fetchUserVenues]);
+        const fetchVenues = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/venues`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                setVenues(data);
+                if (data.length > 0) {
+                    setSelectedVenue(data[0]);
+                }
+            } catch (error) {
+                console.error('Failed to fetch venues:', error);
+                setMessage('Failed to load venues. Please check the server.');
+                setIsMessageOpen(true);
+            }
+        };
+        fetchVenues();
+    }, []);
 
     useEffect(() => {
         if (selectedVenue) {

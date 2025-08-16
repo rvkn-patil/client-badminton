@@ -12,35 +12,34 @@ import {
 } from '@mui/material';
 import { AuthContext } from '../../context/AuthContext';
 import MessageDialog from '../common/MessageDialog';
-import useApi from '../../hooks/useApi';
+// import useApi from '../../hooks/useApi';
+import { loginUser } from '../../api/apiService'; // Importing the login function from the API service
 
 const Login = ({ setRoute }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     const [isMessageOpen, setIsMessageOpen] = useState(false);
     const { login } = useContext(AuthContext);
-
-    // useApi hook for handling the login POST request.
-    const { data, loading, error, post } = useApi('/auth/login', { lazy: true });
-
-    // useEffect to handle the response from the useApi hook.
-    useEffect(() => {
-        if (data) {
+    
+    const handleLogin = async (event) => {
+        event.preventDefault();
+        setLoading(true);
+        setMessage('');
+        
+        try {
+            // Use the centralized loginUser function from the API service
+            const data = await loginUser(email, password);
             login(data.user, data.token, data.user.role);
-        }
-        if (error) {
-            setMessage(error.message || 'Login failed. Please check your credentials.');
+            // On successful login, AuthContext will handle navigation
+        } catch (error) {
             setIsMessageOpen(true);
+            // The error message is now directly from the API service
+            setMessage(error.message || 'Login failed. Please try again.');
+        } finally {
+            setLoading(false);
         }
-    }, [data, error, login]);
-
-    const handleLogin = (e) => {
-        e.preventDefault();
-        // Log to confirm that the post function is being called from here.
-        console.log('Attempting to log in with a POST request.');
-        // Trigger the API call using the 'post' function.
-        post({ email, password });
     };
 
     const handleCloseMessage = () => {
